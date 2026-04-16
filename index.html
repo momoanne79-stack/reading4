@@ -1,0 +1,869 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>수리나무학원 스마트 학습 - Point Reading LEVEL 1 (Day 06)</title>
+    <style>
+        /* 🌳 수리나무학원 전용 컬러 팔레트 */
+        :root {
+            --main-green: #2F855A;
+            --light-green: #48BB78;
+            --bg-color: #F0FDF4;
+            --text-dark: #2D3748;
+            --box-shadow: 0 10px 30px rgba(47, 133, 90, 0.15);
+        }
+
+        body { font-family: 'Pretendard', 'Malgun Gothic', sans-serif; text-align: center; background-color: var(--bg-color); margin: 0; padding: 20px; color: var(--text-dark); }
+        
+        #app-container { max-width: 480px; margin: 0 auto; background: white; border-radius: 24px; box-shadow: var(--box-shadow); overflow: hidden; padding-bottom: 30px;}
+        
+        /* 헤더 스타일 */
+        .app-header { background: linear-gradient(135deg, var(--main-green), #276749); color: white; padding: 35px 20px 25px; text-align: center; border-bottom-left-radius: 24px; border-bottom-right-radius: 24px; margin-bottom: 25px; box-shadow: 0 4px 15px rgba(47, 133, 90, 0.4);}
+        .app-header h1 { margin: 0; font-size: 32px; font-weight: 900; letter-spacing: -1.5px; text-shadow: 0 2px 4px rgba(0,0,0,0.3); }
+        .app-header p { margin: 10px 0 0 0; font-size: 15px; font-weight: bold; opacity: 0.9; background: rgba(255,255,255,0.2); display: inline-block; padding: 5px 15px; border-radius: 20px;}
+        .logo-icon { font-size: 45px; margin-bottom: 5px; text-shadow: 0 4px 10px rgba(0,0,0,0.2);}
+
+        .nav-container { padding: 0 15px; display: flex; justify-content: center; flex-wrap: wrap; gap: 6px; margin-bottom: 25px; }
+        .menu-btn { flex: 1; min-width: 65px; padding: 12px 5px; cursor: pointer; border: none; border-radius: 12px; background-color: #EDF2F7; color: #4A5568; font-weight: bold; font-size: 13px; transition: all 0.3s ease; box-shadow: 0 2px 5px rgba(0,0,0,0.05);}
+        .menu-btn:hover { background-color: #E2E8F0; transform: translateY(-2px); }
+        .menu-btn.active { background-color: var(--main-green); color: white; box-shadow: 0 4px 10px rgba(47, 133, 90, 0.3); }
+        
+        .section { display: none; padding: 0 20px; animation: fadeIn 0.4s; }
+        .section.active { display: block; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+        
+        .status-text { font-size: 15px; color: #718096; margin-bottom: 10px; font-weight: 800; background: #EDF2F7; display: inline-block; padding: 5px 15px; border-radius: 20px;}
+        
+        /* 🐉 진화 시스템 UI */
+        .evolution-box { background: white; border-radius: 18px; padding: 20px; margin-bottom: 25px; box-shadow: 0 4px 10px rgba(0,0,0,0.05); border: 2px solid #E2E8F0; position: relative; overflow: hidden;}
+        .evo-bg-effect { position: absolute; top: -50%; left: -50%; width: 200%; height: 200%; background: radial-gradient(circle, rgba(72,187,120,0.1) 0%, rgba(255,255,255,0) 70%); z-index: 0; pointer-events: none;}
+        .evo-content { position: relative; z-index: 1; }
+        .evo-emoji { font-size: 4rem; margin-bottom: 5px; transition: transform 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275); display: inline-block;}
+        .evo-text { font-size: 18px; font-weight: 900; color: var(--main-green); margin-bottom: 15px; }
+        .progress-bg { background: #EDF2F7; height: 14px; border-radius: 10px; overflow: hidden; width: 100%; box-shadow: inset 0 2px 4px rgba(0,0,0,0.05);}
+        .progress-bar { background: linear-gradient(90deg, #48BB78, #2F855A, #3182CE); height: 100%; width: 0%; transition: width 0.6s ease-in-out; border-radius: 10px;}
+
+        /* 공통 버튼 */
+        .start-btn { background: var(--main-green); color: white; border: none; padding: 15px 30px; border-radius: 12px; font-size: 18px; font-weight: bold; cursor: pointer; width: 100%; box-shadow: 0 4px 10px rgba(47, 133, 90, 0.3); transition: 0.2s; margin-top: 20px;}
+        .start-btn:hover { background: var(--light-green); transform: translateY(-2px);}
+        .score-display { font-size: 3.5rem; font-weight: 900; color: #3182CE; margin: 20px 0; }
+        
+        /* 단어 테스트 스타일 */
+        .word-box { font-size: 2.2rem; font-weight: 900; color: var(--main-green); margin: 20px 0 30px; letter-spacing: -1px; word-break: keep-all; }
+        #word-options { display: grid; gap: 12px; margin-bottom: 20px;}
+        .option-btn { background: white; border: 2px solid #E2E8F0; padding: 16px; border-radius: 15px; font-size: 16px; cursor: pointer; transition: 0.2s; text-align: left; padding-left: 20px; font-weight: bold; color: var(--text-dark);}
+        .option-btn:hover { border-color: var(--light-green); background: var(--bg-color); }
+        .option-btn.correct { background-color: var(--light-green) !important; color: white !important; border-color: var(--light-green) !important; transform: scale(1.02); }
+        .option-btn.wrong { background-color: #FC8181 !important; color: white !important; border-color: #FC8181 !important; animation: shake 0.4s; }
+        @keyframes shake { 0% { transform: translateX(0); } 25% { transform: translateX(-5px); } 50% { transform: translateX(5px); } 75% { transform: translateX(-5px); } 100% { transform: translateX(0); } }
+
+        /* 딕테이션 스타일 */
+        .word-block { display: inline-block; background-color: white; margin: 5px; padding: 12px 18px; border: 2px solid #CBD5E0; border-radius: 12px; cursor: pointer; font-size: 16px; font-weight: bold; color: var(--text-dark); box-shadow: 0 4px 6px rgba(0,0,0,0.05); transition: 0.1s;}
+        .word-block:active { transform: translateY(3px); box-shadow: none; }
+        #answer-area { min-height: 60px; border: 2px dashed var(--main-green); background-color: var(--bg-color); margin-bottom: 20px; padding: 15px; border-radius: 15px; display: flex; flex-wrap: wrap; gap: 8px; justify-content: center; align-items: center; transition: all 0.3s; }
+        #scrambled-words { display: flex; flex-wrap: wrap; gap: 8px; justify-content: center; margin-bottom: 20px; min-height: 50px;}
+        .korean-meaning { font-size: 18px; color: #C53030; font-weight: bold; margin: 15px 0 25px 0; background-color: #FFF5F5; padding: 15px; border-radius: 12px; word-break: keep-all; border-left: 5px solid #F56565; text-align: left;}
+        .setup-section { margin-bottom: 20px; padding: 15px; background: white; border: 1px solid #E2E8F0; border-radius: 15px; display: flex; align-items: center; justify-content: center; gap: 10px;}
+        input[type="number"] { padding: 8px; font-size: 15px; border: 2px solid #E2E8F0; border-radius: 8px; width: 60px; text-align: center; outline: none;}
+        .setup-section button { padding: 8px 15px; background-color: var(--text-dark); color: white; border: none; border-radius: 8px; font-weight: bold; cursor: pointer;}
+        .audio-ctrl-btn { width: 100%; padding: 12px; border-radius: 10px; font-weight: bold; font-size: 16px; border: none; cursor: pointer; color: white; transition: 0.3s; margin-top: 10px;}
+
+        /* 문장 분석(문법) 스타일 */
+        .grammar-ko { font-size: 16px; font-weight: 800; background: #EBF8FF; padding: 15px; border-radius: 12px; border-left: 4px solid #3182CE; margin-bottom: 20px; word-break: keep-all; line-height: 1.4;}
+        .grammar-chunks { display: flex; flex-wrap: wrap; gap: 8px; justify-content: center; margin-bottom: 20px; }
+        .chunk-card { border: 2px solid #CBD5E0; border-radius: 10px; min-width: 70px; background: white; cursor: pointer; overflow: hidden; transition: 0.2s;}
+        .chunk-card.active { border-color: #3182CE; box-shadow: 0 0 8px rgba(49,130,206,0.3); transform: translateY(-2px);}
+        .chunk-card.correct { border-color: var(--light-green); background: #F0FDF4; pointer-events: none;}
+        .chunk-txt { padding: 8px; font-size: 15px; font-weight: bold; background: #F7FAFC; border-bottom: 1px dashed #E2E8F0; }
+        .chunk-ans { padding: 6px; font-size: 13px; font-weight: 800; color: #A0AEC0; height: 18px; }
+        .choice-grid { display: flex; flex-wrap: wrap; gap: 8px; justify-content: center; }
+        .choice-btn { flex: 1 1 calc(30% - 10px); padding: 12px 5px; background: #EDF2F7; border: none; border-radius: 10px; font-size: 14px; font-weight: bold; color:#2D3748; cursor: pointer; transition: 0.2s;}
+        .choice-btn:active { background: #CBD5E0; transform: scale(0.95); }
+        .info-box { display: none; background: white; padding: 20px; border-radius: 16px; border: 3px solid var(--light-green); margin-top: 20px; text-align: left; animation: fadeIn 0.4s; box-shadow: 0 8px 20px rgba(72, 187, 120, 0.15); }
+        .info-box.show { display: block; }
+        .info-title { font-size: 18px; font-weight: 900; margin-bottom: 12px; }
+        .detail-row { background: #F7FAFC; padding: 10px; border-radius: 8px; margin-bottom: 8px; border-left: 3px solid #3182CE; font-size: 14px; font-weight: 600; color: #2D3748;}
+        .step-btn { width: 100%; background: var(--main-green); color: white; padding: 16px; border: none; border-radius: 12px; font-size: 17px; font-weight: 900; margin-top: 15px; cursor: pointer; transition: 0.2s; box-shadow: 0 4px 10px rgba(47, 133, 90, 0.3);}
+        .step-btn.blue { background: #3182CE; box-shadow: 0 4px 10px rgba(49, 130, 206, 0.3); }
+        .pattern-alert { animation: fadeIn 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275); background: #FFF5F5; border: 4px dashed #FC8181; padding: 25px 20px; border-radius: 16px; margin-top: 25px; box-shadow: 0 8px 20px rgba(229, 62, 62, 0.2); text-align: center; }
+        .pattern-title { font-size: 20px; color: #C53030; font-weight: 900; margin-bottom: 12px; }
+        .pattern-desc { font-size: 20px; color: #E53E3E; font-weight: 900; word-break: keep-all; line-height: 1.4;}
+
+        /* 기록 스타일 */
+        .history-card { background: white; border: 2px solid #E2E8F0; border-radius: 12px; padding: 15px; margin-bottom: 12px; text-align: left; box-shadow: 0 4px 6px rgba(0,0,0,0.02); display: flex; justify-content: space-between; align-items: center;}
+        .history-info { display: flex; flex-direction: column; gap: 5px; }
+        .history-date { font-size: 14px; font-weight: bold; color: #718096; }
+        .history-score { font-size: 20px; font-weight: 900; color: var(--main-green); }
+        .stamp-excellent { color: #E53E3E; font-weight: 900; font-size: 18px; transform: rotate(-10deg); border: 3px solid #E53E3E; padding: 4px 10px; border-radius: 10px; opacity: 0.9;}
+        .history-category { background: #EDF2F7; padding: 8px 12px; border-radius: 8px; font-size: 14px; font-weight: bold; margin-bottom: 15px; margin-top: 20px; color: #2D3748; text-align: left; border-left: 4px solid #4A5568;}
+    </style>
+</head>
+<body>
+
+<div id="app-container">
+    <div class="app-header">
+        <div class="logo-icon">🌳</div>
+        <h1>수리나무학원</h1>
+        <p>Point Reading LEVEL 1 (Day 06)</p>
+    </div>
+    
+    <div class="nav-container">
+        <button id="nav-word" class="menu-btn active" onclick="showSection('word-section', this)">1. 단어</button>
+        <button id="nav-dictation" class="menu-btn" onclick="showSection('dictation-section', this)">2. 영작</button>
+        <button id="nav-grammar" class="menu-btn" onclick="showSection('grammar-section', this)">3. 분석</button>
+        <button id="nav-history" class="menu-btn" onclick="showSection('history-section', this); renderHistory();">4. 기록</button>
+    </div>
+
+    <div id="word-section" class="section active">
+        <div id="intro-screen-word">
+            <div style="font-size: 4rem; margin-bottom: 10px;">🥚</div>
+            <h2 style="color: var(--main-green);">전설의 용 키우기!</h2>
+            <p style="font-weight: bold; color: #4A5568;">단어 45문항을 맞춰가며<br>알을 멋진 용으로 진화시켜 보세요.</p>
+            <button class="start-btn" onclick="startWordTest()">테스트 시작하기 🚀</button>
+        </div>
+
+        <div id="quiz-screen-word" style="display: none;">
+            <div class="evolution-box">
+                <div class="evo-bg-effect"></div>
+                <div class="evo-content">
+                    <div class="evo-emoji" id="word-evo-emoji">🥚</div>
+                    <div class="evo-text" id="word-evo-text">신비한 수리나무 알 (0%)</div>
+                    <div class="progress-bg"><div class="progress-bar" id="word-evo-bar"></div></div>
+                </div>
+            </div>
+            <div class="status-text" id="word-status">문제 1 / 45</div>
+            <div id="word-display" class="word-box">Loading...</div>
+            <div id="word-options"></div>
+        </div>
+
+        <div id="result-screen-word" style="display: none;">
+            <div style="font-size: 5rem; margin-bottom: 10px;" id="result-dragon-word">🐉✨</div>
+            <h2 style="color: var(--main-green);">테스트 종료!</h2>
+            <div class="score-display" id="final-score-word">100점</div>
+            <div style="font-size: 1.2rem; color: #4A5568; font-weight: bold; margin-bottom: 30px;" id="final-detail-word">정답: 45 / 45</div>
+            <button class="start-btn" onclick="resetWordTest()">새로운 알 부화하기 🔄</button>
+        </div>
+    </div>
+
+    <div id="dictation-section" class="section">
+        <div class="evolution-box">
+            <div class="evo-bg-effect"></div>
+            <div class="evo-content">
+                <div class="evo-emoji" id="dict-evo-emoji">🥚</div>
+                <div class="evo-text" id="dict-evo-text">신비한 수리나무 알 (0%)</div>
+                <div class="progress-bg"><div class="progress-bar" id="dict-evo-bar"></div></div>
+            </div>
+        </div>
+
+        <div class="setup-section">
+            <strong>문장 이동: </strong> 
+            <input type="number" id="startSenNum" value="1" min="1">
+            <button onclick="jumpToSentence()">GO 🚀</button>
+        </div>
+        <h3 style="color: var(--main-green); margin-bottom: 5px;">듣고 뜻을 보며 단어를 순서대로 터치하세요</h3>
+        <div class="status-text" id="sentence-status">문제 1 / 18</div>
+        <div id="sentence-ko-text" class="korean-meaning">한글 뜻 로딩중...</div>
+        <div id="answer-area"></div>
+        <div id="scrambled-words"></div>
+        
+        <button id="audio-toggle-btn" class="audio-ctrl-btn" onclick="toggleAudio()">▶️ 원어민 음성 재생</button>
+    </div>
+
+    <div id="grammar-section" class="section">
+        <div id="intro-screen-gram">
+            <div style="font-size: 4rem; margin-bottom: 10px;">🥚</div>
+            <h2 style="color: var(--main-green);">문장 마스터 용 키우기!</h2>
+            <p style="font-weight: bold; color: #4A5568;">본문 핵심 12문장을 완벽히 분석해서<br>전설의 용으로 진화시켜 보세요.</p>
+            <button class="start-btn" onclick="startGrammarTest()">분석 훈련 시작하기 🚀</button>
+        </div>
+
+        <div id="quiz-screen-gram" style="display: none;">
+            <div class="evolution-box">
+                <div class="evo-bg-effect"></div>
+                <div class="evo-content">
+                    <div class="evo-emoji" id="gram-evo-emoji">🥚</div>
+                    <div class="evo-text" id="gram-evo-text">신비한 수리나무 알 (0%)</div>
+                    <div class="progress-bg"><div class="progress-bar" id="gram-evo-bar"></div></div>
+                </div>
+            </div>
+
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;">
+                <span class="status-text" style="background:#C6F6D5; color:var(--main-green); margin:0;" id="gram-level-badge">1단계: 품사(구/절) 찾기</span>
+                <span class="status-text" style="margin:0; background:transparent;" id="gram-count">1 / 12</span>
+            </div>
+            
+            <div class="grammar-ko" id="gram-ko">로딩 중...</div>
+            <div class="grammar-chunks" id="gram-chunks"></div>
+            <div class="choice-grid" id="gram-choices"></div>
+            
+            <div id="gram-step1-exp" class="info-box" style="border-color:#3182CE;">
+                <div class="info-title" style="color:#3182CE;">💡 1단계 완료! 문장 속 진짜 모습은?</div>
+                <div class="info-desc" id="gram-step1-desc"></div>
+                <div style="margin-top:15px; font-weight:800; color:#E53E3E; text-align:center;">이제 이 덩어리들이 어떤 역할(성분)을 하는지 찾아볼까요?</div>
+                <button class="step-btn blue" onclick="startGrammarStep2()">2단계: 문장 성분 맞히기 ➔</button>
+            </div>
+
+            <div id="gram-result-container"></div>
+        </div>
+
+        <div id="result-screen-gram" style="display: none;">
+            <div style="font-size: 5rem; margin-bottom: 10px;" id="result-dragon-gram">🐉✨</div>
+            <h2 style="color: var(--main-green);">문장 분석 훈련 종료!</h2>
+            <div class="score-display" style="font-size:2.5rem; color:#3182CE; margin-bottom:30px;">수리나무 마스터 달성!</div>
+            <button class="start-btn" onclick="resetGrammarTest()">새로운 알 부화하기 🔄</button>
+        </div>
+    </div>
+
+    <div id="history-section" class="section">
+        <h3 style="color: var(--main-green); margin-top:0;">🏆 수리나무 명예의 전당</h3>
+        <div id="history-list"></div>
+    </div>
+</div>
+
+<script>
+    // ==========================================
+    // 1. Data Definitions (Point Reading LEVEL 1 - Day 06)
+    // ==========================================
+    const wordList = [
+        { en: "chore", ko: "집안일" },
+        { en: "aged", ko: "~세의, 나이가 ~인" },
+        { en: "of course", ko: "물론" },
+        { en: "simplest", ko: "가장 간단한" },
+        { en: "pick up", ko: "줍다, 집어들다" },
+        { en: "put back", ko: "제자리에 갖다 놓다" },
+        { en: "basket", ko: "바구니" },
+        { en: "throw", ko: "던지다, 버리다" },
+        { en: "diaper", ko: "기저귀" },
+        { en: "garbage", ko: "쓰레기" },
+        { en: "assist", ko: "돕다" },
+        { en: "make a bed", ko: "침대를 정리하다" },
+        { en: "pull", ko: "당기다" },
+        { en: "sheet", ko: "침대 시트" },
+        { en: "set", ko: "놓다, 두다" },
+        { en: "pillow", ko: "베개" },
+        { en: "teenager", ko: "십대" },
+        { en: "stronger", ko: "더 강한" },
+        { en: "sharper", ko: "더 예리한, 더 똑똑한" },
+        { en: "quicker", ko: "더 빠른" },
+        { en: "willingly", ko: "기꺼이" },
+        { en: "follow", ko: "따르다" },
+        { en: "step", ko: "단계, 조치" },
+        { en: "understand", ko: "이해하다" },
+        { en: "importance", ko: "중요성" },
+        { en: "placement", ko: "배치, 놓기" },
+        { en: "in order", ko: "질서정연하게, 순서대로" },
+        { en: "hear of", ko: "~에 대해 듣다" },
+        { en: "invent", ko: "발명하다" },
+        { en: "mathematician", ko: "수학자" },
+        { en: "nephew", ko: "조카" },
+        { en: "large", ko: "큰" },
+        { en: "number", ko: "숫자" },
+        { en: "follow by", ko: "뒤따르다" },
+        { en: "zero", ko: "0" },
+        { en: "introduce", ko: "소개하다" },
+        { en: "term", ko: "용어" },
+        { en: "particular", ko: "특정한" },
+        { en: "meaning", ko: "의미" },
+        { en: "useful", ko: "유용한" },
+        { en: "compare", ko: "비교하다" },
+        { en: "incredibly", ko: "믿을 수 없을 정도로" },
+        { en: "quantity", ko: "양" },
+        { en: "chance", ko: "가능성, 기회" },
+        { en: "express", ko: "표현하다" }
+    ];
+
+    const sentenceList = [
+        { en: "Chores for children aged two and three?", ko: "2, 3세 아이들을 위한 집안일?" },
+        { en: "The simplest of all chores is to pick up the toys and put them back in the bag.", ko: "모든 집안일 중 가장 간단한 것은 장난감을 집어서 가방에 다시 넣는 것이다." },
+        { en: "Throwing diapers in the garbage is also an easy chore.", ko: "기저귀를 쓰레기통에 버리는 것도 쉬운 집안일이다." },
+        { en: "Another thing little ones can assist you in is making beds.", ko: "어린 아이들이 당신을 도울 수 있는 또 다른 일은 침대 정리이다." },
+        { en: "Teenagers are stronger, sharper, and quicker than younger kids.", ko: "십대들은 더 어린 아이들보다 더 강하고, 더 똑똑하고, 더 빠르다." },
+        { en: "All you have to do is to show them how it is done.", ko: "당신이 해야 할 일은 그들에게 그것이 어떻게 행해지는지 보여주는 것뿐이다." },
+        { en: "They would willingly follow your steps.", ko: "그들은 기꺼이 당신의 단계를 따를 것이다." },
+        { en: "By the age of four, children are better at understanding the importance of placement of things.", ko: "4살쯤 되면, 아이들은 물건 배치의 중요성을 더 잘 이해한다." },
+        { en: "This means that they will quickly understand where to put things in order.", ko: "이것은 그들이 물건들을 어디에 정리해 두어야 할지 빨리 이해할 것이라는 것을 의미한다." },
+        { en: "Have you heard of the word \"googol\"?", ko: "\"구골\"이라는 단어를 들어본 적이 있나요?" },
+        { en: "It was invented by a nine-year-old boy.", ko: "그것은 9살 소년에 의해 발명되었다." },
+        { en: "An American mathematician asked his nephew to give a name for a very large number.", ko: "한 미국의 수학자가 조카에게 아주 큰 숫자의 이름을 지어달라고 부탁했다." },
+        { en: "His nephew called it a googol.", ko: "그의 조카는 그것을 구골이라고 불렀다." },
+        { en: "Kasner introduced the term and what it means in his book.", ko: "카스너는 그의 책에서 그 용어와 그것이 의미하는 바를 소개했다." },
+        { en: "The googol has no particular meaning in mathematics.", ko: "구골은 수학에서 특별한 의미가 없다." },
+        { en: "But it is useful when comparing with an incredibly large quantity.", ko: "하지만 믿을 수 없을 정도로 큰 양을 비교할 때 유용하다." },
+        { en: "You could say it is about \"googol\" to one.", ko: "당신은 그것이 1대 \"구골\" 정도라고 말할 수 있다." },
+        { en: "I want to say I love you, a googol times!", ko: "나는 당신을 구골 번 사랑한다고 말하고 싶어!" }
+    ];
+
+    const grammarList = [
+        ["모든 집안일 중 가장 간단한 것은 장난감을 집는 것이다.", [["The simplest of all chores", "명사구", "주어"], ["is", "동사", "서술어"], ["to pick up the toys", "to부정사구", "보어"]]],
+        ["기저귀를 쓰레기통에 버리는 것은 쉬운 집안일이다.", [["Throwing diapers in the garbage", "동명사구", "주어"], ["is", "동사", "서술어"], ["an easy chore", "명사구", "보어"]]],
+        ["십대들은 더 어린 아이들보다 더 강하다.", [["Teenagers", "명사", "주어"], ["are", "동사", "서술어"], ["stronger", "형용사", "보어"], ["than younger kids", "전치사구", "수식어"]]],
+        ["그들은 기꺼이 당신의 단계를 따를 것이다.", [["They", "대명사", "주어"], ["would willingly follow", "동사구", "서술어"], ["your steps", "명사구", "목적어"]]],
+        ["아이들은 물건 배치의 중요성을 더 잘 이해한다.", [["Children", "명사", "주어"], ["are", "동사", "서술어"], ["better", "형용사", "보어"], ["at understanding the importance of placement of things", "전치사구", "수식어"]]],
+        ["당신은 구골이라는 단어를 들어봤다.", [["You", "대명사", "주어"], ["have heard of", "동사구", "서술어"], ["the word googol", "명사구", "목적어"]]],
+        ["그것은 9살 소년에 의해 발명되었다.", [["It", "대명사", "주어"], ["was invented", "동사", "서술어"], ["by a nine-year-old boy", "전치사구", "수식어"]]],
+        ["그의 조카는 그것을 구골이라고 불렀다.", [["His nephew", "명사구", "주어"], ["called", "동사", "서술어"], ["it", "대명사", "목적어"], ["a googol", "명사구", "보어"]]],
+        ["구골은 수학에서 특별한 의미가 없다.", [["The googol", "명사구", "주어"], ["has", "동사", "서술어"], ["no particular meaning", "명사구", "목적어"], ["in mathematics", "전치사구", "수식어"]]],
+        ["카스너는 그 용어를 소개했다.", [["Kasner", "명사", "주어"], ["introduced", "동사", "서술어"], ["the term", "명사구", "목적어"]]],
+        ["나는 당신을 구골 번 사랑한다고 말하고 싶어!", [["I", "대명사", "주어"], ["want", "동사", "서술어"], ["to say I love you", "to부정사구", "목적어"], ["a googol times", "부사구", "수식어"]]],
+        ["그들은 그것을 빨리 이해할 것이다.", [["They", "대명사", "주어"], ["will quickly understand", "동사구", "서술어"], ["it", "대명사", "목적어"]]]
+    ];
+
+    const chunkPosList = ["명사(구/절)", "대명사", "동사", "형용사(구/절)", "부사(구/절)", "접속사(절)"];
+    const roleList = ["주어", "서술어", "목적어", "보어", "수식어"];
+
+    // ==========================================
+    // 공통 로직 및 진화 UI
+    // ==========================================
+    function shuffleArray(array) {
+        let newArr = [...array];
+        for (let i = newArr.length - 1; i > 0; i--) {
+            const j = Math.floor(Math.random() * (i + 1));
+            [newArr[i], newArr[j]] = [newArr[j], newArr[i]];
+        }
+        return newArr;
+    }
+
+    function formatDate(dateObj) {
+        return `${dateObj.getFullYear()}.${String(dateObj.getMonth() + 1).padStart(2, '0')}.${String(dateObj.getDate()).padStart(2, '0')} ${String(dateObj.getHours()).padStart(2, '0')}:${String(dateObj.getMinutes()).padStart(2, '0')}`;
+    }
+
+    function getTodayKey() {
+        const today = new Date();
+        return `${today.getFullYear()}-${String(today.getMonth()+1).padStart(2,'0')}-${String(today.getDate()).padStart(2,'0')}`;
+    }
+
+    let isDictationLoaded = false; 
+
+    function showSection(sectionId, btnElement) {
+        stopLooping(); 
+        document.querySelectorAll('.section').forEach(el => el.classList.remove('active'));
+        document.querySelectorAll('.menu-btn').forEach(el => el.classList.remove('active'));
+        document.getElementById(sectionId).classList.add('active');
+        if(btnElement) btnElement.classList.add('active');
+        
+        if(sectionId === 'dictation-section') { 
+            if (!isDictationLoaded) { loadDictationSentence(); isDictationLoaded = true; } 
+            else { isLooping = true; playAndLoop(); }
+            updateAudioBtnText();
+            updateEvolutionUI('dict-evo', currentSentenceIdx, sentenceList.length);
+        }
+    }
+
+    function updateEvolutionUI(prefix, current, total) {
+        const ratio = total === 0 ? 0 : current / total;
+        let emoji = '🥚';
+        let stageName = '신비한 수리나무 알';
+
+        if (ratio === 0) { emoji = '🥚'; stageName = '신비한 수리나무 알'; }
+        else if (ratio < 0.25) { emoji = '🐣'; stageName = '부화하는 아기 용'; }
+        else if (ratio < 0.5) { emoji = '🦎'; stageName = '꼬마 드래곤'; }
+        else if (ratio < 0.75) { emoji = '🦖'; stageName = '성장하는 파워 용'; }
+        else if (ratio < 1.0) { emoji = '🐲'; stageName = '비상하는 매직 용'; }
+        else { emoji = '🐉✨'; stageName = '수리나무 마스터 용!!'; }
+
+        const percent = Math.floor(ratio * 100);
+        const emojiEl = document.getElementById(prefix + '-emoji');
+        emojiEl.innerText = emoji;
+        emojiEl.style.transform = 'scale(1.3)';
+        setTimeout(() => { emojiEl.style.transform = 'scale(1)'; }, 300);
+
+        document.getElementById(prefix + '-text').innerText = `${stageName} (${percent}%)`;
+        document.getElementById(prefix + '-bar').style.width = percent + '%';
+    }
+
+    // ==========================================
+    // 1. 단어 테스트 로직
+    // ==========================================
+    let currentWordTestList = [];
+    let currentWordIdx = 0;
+    let wordCorrectCount = 0;
+    let isWordAnswering = false;
+
+    function startWordTest() {
+        currentWordTestList = shuffleArray(wordList);
+        currentWordIdx = 0;
+        wordCorrectCount = 0;
+        
+        document.getElementById('intro-screen-word').style.display = 'none';
+        document.getElementById('result-screen-word').style.display = 'none';
+        document.getElementById('quiz-screen-word').style.display = 'block';
+        
+        loadWordQuestion();
+    }
+
+    function loadWordQuestion() {
+        isWordAnswering = false;
+        updateEvolutionUI('word-evo', currentWordIdx, currentWordTestList.length);
+
+        const currentQ = currentWordTestList[currentWordIdx];
+        document.getElementById('word-status').innerText = `문제 ${currentWordIdx + 1} / ${currentWordTestList.length}`;
+        document.getElementById('word-display').innerText = currentQ.en;
+        
+        const optionsDiv = document.getElementById('word-options');
+        optionsDiv.innerHTML = '';
+
+        let options = [{ text: currentQ.ko, isCorrect: true }];
+        let distractors = shuffleArray(wordList.filter(w => w.ko !== currentQ.ko));
+        
+        for(let i=0; i<3; i++) {
+            if(distractors[i]) options.push({ text: distractors[i].ko, isCorrect: false });
+        }
+        options = shuffleArray(options);
+
+        options.forEach((opt, index) => {
+            const btn = document.createElement('button');
+            btn.className = 'option-btn';
+            btn.innerText = `${index + 1}. ${opt.text}`;
+            btn.onclick = () => handleWordAnswer(btn, opt.isCorrect, optionsDiv);
+            optionsDiv.appendChild(btn);
+        });
+    }
+
+    function handleWordAnswer(clickedBtn, isCorrect, optionsContainer) {
+        if (isWordAnswering) return;
+        isWordAnswering = true;
+
+        if (isCorrect) {
+            clickedBtn.classList.add('correct');
+            wordCorrectCount++;
+        } else {
+            clickedBtn.classList.add('wrong');
+            const buttons = optionsContainer.getElementsByClassName('option-btn');
+            for(let btn of buttons) {
+                if(btn.innerText.includes(currentWordTestList[currentWordIdx].ko)) {
+                    btn.classList.add('correct');
+                    break;
+                }
+            }
+        }
+
+        setTimeout(() => {
+            currentWordIdx++;
+            if (currentWordIdx < currentWordTestList.length) {
+                loadWordQuestion();
+            } else {
+                finishWordTest();
+            }
+        }, 800);
+    }
+
+    function finishWordTest() {
+        updateEvolutionUI('word-evo', currentWordTestList.length, currentWordTestList.length);
+        setTimeout(() => {
+            document.getElementById('quiz-screen-word').style.display = 'none';
+            document.getElementById('result-screen-word').style.display = 'block';
+            
+            const total = currentWordTestList.length;
+            const calculatedScore = Math.round((wordCorrectCount / total) * 100);
+            
+            const resultDragon = document.getElementById('result-dragon-word');
+            if (calculatedScore >= 90) resultDragon.innerText = '🐉✨';
+            else if (calculatedScore >= 70) resultDragon.innerText = '🐲';
+            else resultDragon.innerText = '🦖💦';
+
+            document.getElementById('final-score-word').innerText = `${calculatedScore}점`;
+            document.getElementById('final-score-word').style.color = calculatedScore >= 90 ? '#3182CE' : (calculatedScore >= 70 ? '#D69E2E' : '#E53E3E');
+            document.getElementById('final-detail-word').innerText = `정답: ${wordCorrectCount}개 / ${total}문항`;
+            
+            saveHistory('word', { score: calculatedScore, correct: wordCorrectCount, total: total });
+        }, 500); 
+    }
+
+    function resetWordTest() {
+        document.getElementById('result-screen-word').style.display = 'none';
+        document.getElementById('intro-screen-word').style.display = 'block';
+    }
+
+    // ==========================================
+    // 2. 영작(딕테이션) 로직 (⭐대소문자 완벽 무시 로직 적용⭐)
+    // ==========================================
+    let currentSentenceIdx = 0;
+    let isLooping = false;
+    let loopTimeout;
+
+    function playAndLoop() {
+        if(!isLooping || sentenceList.length === 0) return;
+        window.speechSynthesis.cancel(); 
+        const text = sentenceList[currentSentenceIdx].en;
+        const utterance = new SpeechSynthesisUtterance(text);
+        utterance.lang = 'en-US';
+        utterance.rate = 0.8;
+        utterance.onend = function() { if(isLooping) loopTimeout = setTimeout(playAndLoop, 1000); };
+        window.speechSynthesis.speak(utterance);
+    }
+
+    function stopLooping() {
+        isLooping = false;
+        window.speechSynthesis.cancel();
+        clearTimeout(loopTimeout);
+    }
+
+    function toggleAudio() {
+        if (isLooping) stopLooping();
+        else { isLooping = true; playAndLoop(); }
+        updateAudioBtnText();
+    }
+
+    function updateAudioBtnText() {
+        const btn = document.getElementById('audio-toggle-btn');
+        if(btn) {
+            btn.innerHTML = isLooping ? '⏸️ 음성 반복 멈춤' : '▶️ 음성 반복 재생';
+            btn.style.background = isLooping ? '#E53E3E' : '#3182CE';
+        }
+    }
+
+    function loadDictationSentence() {
+        if(sentenceList.length === 0) return;
+        stopLooping(); 
+        
+        updateEvolutionUI('dict-evo', currentSentenceIdx, sentenceList.length);
+
+        const currentSenObj = sentenceList[currentSentenceIdx];
+        document.getElementById('sentence-status').innerText = `영작 문제 ${currentSentenceIdx + 1} / ${sentenceList.length}`;
+        document.getElementById('sentence-ko-text').innerText = currentSenObj.ko;
+        
+        const answerArea = document.getElementById('answer-area');
+        answerArea.innerHTML = '';
+        answerArea.style.backgroundColor = 'var(--bg-color)';
+        answerArea.style.borderColor = 'var(--main-green)';
+        
+        const scrambledDiv = document.getElementById('scrambled-words');
+        scrambledDiv.innerHTML = '';
+        
+        let words = currentSenObj.en.split(' ').filter(w => w.trim() !== '');
+        let scrambled = shuffleArray([...words]);
+        
+        scrambled.forEach(word => {
+            const btn = document.createElement('button');
+            btn.className = 'word-block';
+            btn.innerText = word;
+            btn.onclick = function() {
+                if (this.parentElement.id === 'scrambled-words') { answerArea.appendChild(this); } 
+                else { scrambledDiv.appendChild(this); }
+                if (scrambledDiv.children.length === 0) checkDictationSentence();
+            };
+            scrambledDiv.appendChild(btn);
+        });
+        
+        isLooping = true;
+        playAndLoop();
+        updateAudioBtnText();
+    }
+    
+    function checkDictationSentence() {
+        const answerArea = document.getElementById('answer-area');
+        
+        // 학생 문장과 원본 문장 비교 시 대소문자 & 띄어쓰기 완전 무시
+        const studentSentence = Array.from(answerArea.children).map(btn => btn.innerText.trim()).join(' ');
+        const targetSentence = sentenceList[currentSentenceIdx].en;
+        const normalize = (str) => str.toLowerCase().replace(/\s+/g, ' ').trim();
+
+        if (normalize(studentSentence) === normalize(targetSentence)) {
+            answerArea.style.backgroundColor = '#C6F6D5';
+            answerArea.style.borderColor = '#48BB78';
+            recordDictationProgress(); 
+            stopLooping(); 
+            updateAudioBtnText();
+            setTimeout(() => { nextDictationSentence(); }, 800); 
+        } else {
+            answerArea.style.backgroundColor = '#FED7D7';
+            setTimeout(() => { answerArea.style.backgroundColor = 'var(--bg-color)'; }, 400);
+        }
+    }
+    
+    function nextDictationSentence() {
+        if (currentSentenceIdx + 1 < sentenceList.length) { 
+            currentSentenceIdx++; 
+            loadDictationSentence(); 
+        } else { 
+            stopLooping(); 
+            updateAudioBtnText();
+            updateEvolutionUI('dict-evo', sentenceList.length, sentenceList.length);
+            setTimeout(() => { alert('수리나무 마스터 달성! 영작 훈련을 모두 완료했습니다! 🐉🎉'); }, 300);
+        }
+    }
+
+    function jumpToSentence() {
+        const num = parseInt(document.getElementById('startSenNum').value);
+        if (num >= 1 && num <= sentenceList.length) { 
+            currentSentenceIdx = num - 1; 
+            loadDictationSentence(); 
+        } else { alert(`1에서 ${sentenceList.length} 사이의 번호를 입력하세요.`); }
+    }
+
+    function recordDictationProgress() {
+        const dateKey = getTodayKey();
+        let history = JSON.parse(localStorage.getItem('surinamu_dictation_history')) || {};
+        if (!history[dateKey]) { history[dateKey] = { dictation: 0 }; }
+        history[dateKey].dictation++;
+        localStorage.setItem('surinamu_dictation_history', JSON.stringify(history));
+    }
+
+    // ==========================================
+    // 3. 문장 분석(문법) 로직
+    // ==========================================
+    let curGramIdx = 0;
+    let gramStage = 1; 
+    let activeChunk = 0;
+    let gramAnswers = [];
+
+    function startGrammarTest() {
+        curGramIdx = 0;
+        gramStage = 1;
+        document.getElementById('intro-screen-gram').style.display = 'none';
+        document.getElementById('result-screen-gram').style.display = 'none';
+        document.getElementById('quiz-screen-gram').style.display = 'block';
+        loadGrammar();
+    }
+
+    function loadGrammar() {
+        updateEvolutionUI('gram-evo', curGramIdx, grammarList.length);
+
+        const d = grammarList[curGramIdx];
+        let badge = document.getElementById('gram-level-badge');
+        badge.innerText = "1단계: 품사(구/절) 찾기";
+        badge.style.color = "var(--main-green)";
+        badge.style.background = "#C6F6D5";
+
+        document.getElementById('gram-count').innerText = `${curGramIdx + 1} / ${grammarList.length}`;
+        document.getElementById('gram-ko').innerText = d[0];
+        document.getElementById('gram-result-container').innerHTML = '';
+        document.getElementById('gram-step1-exp').classList.remove('show');
+        document.getElementById('gram-choices').style.display = 'flex';
+        
+        const container = document.getElementById('gram-chunks');
+        container.innerHTML = '';
+        gramAnswers = new Array(d[1].length).fill(null);
+        activeChunk = 0;
+
+        d[1].forEach((c, i) => {
+            container.innerHTML += `
+                <div class="chunk-card ${i===0?'active':''}" onclick="activeChunk=${i}; renderChunks();">
+                    <div class="chunk-txt">${c[0]}</div>
+                    <div class="chunk-ans" id="ans-${i}">?</div>
+                </div>
+            `;
+        });
+        renderChoices();
+    }
+
+    function renderChunks() {
+        document.querySelectorAll('.chunk-card').forEach((c, i) => {
+            c.classList.toggle('active', i === activeChunk);
+        });
+    }
+
+    function renderChoices() {
+        const grid = document.getElementById('gram-choices');
+        grid.innerHTML = '';
+        const list = (gramStage === 1) ? chunkPosList : roleList;
+        list.forEach(item => {
+            grid.innerHTML += `<button class="choice-btn" onclick="pickGram('${item}')">${item}</button>`;
+        });
+    }
+
+    function getSimplePos(detail, role) {
+        if (detail.includes("대명사")) return "대명사";
+        if (detail.includes("동사") && !detail.includes("동명사") && !detail.includes("부정사") && !detail.includes("분사")) return "동사";
+        if (detail.includes("접속사")) return "접속사(절)";
+        
+        if (role === "보어" && (detail.includes("부정사") || detail.includes("분사") || detail.includes("형용사"))) return "형용사(구/절)";
+        if ((role === "주어" || role === "목적어" || role === "보어") && (detail.includes("명사") || detail.includes("부정사") || detail.includes("동명사") || detail.includes("명사절"))) return "명사(구/절)";
+        
+        if (detail.includes("형용사") || detail.includes("분사")) return "형용사(구/절)";
+        if (detail.includes("부사") || detail.includes("전치사")) return "부사(구/절)";
+        return "명사(구/절)";
+    }
+
+    function getPattern(roles) {
+        if (roles.includes("목적격보어") || (roles.includes("목적어") && roles.includes("보어"))) return "5형식 (S+V+O+O.C)"; 
+        if (roles.filter(r => r === "목적어").length >= 2 || roles.includes("간접목적어")) return "4형식 (S+V+I.O+D.O)";
+        if (roles.includes("목적어")) return "3형식 (S+V+O)";
+        if (roles.includes("보어")) return "2형식 (S+V+S.C)";
+        return "1형식 (S+V+[M])";
+    }
+
+    function pickGram(val) {
+        const d = grammarList[curGramIdx];
+        const detailedPos = d[1][activeChunk][1];
+        const correctStep2 = d[1][activeChunk][2]; 
+        const correctStep1 = getSimplePos(detailedPos, correctStep2); 
+        
+        const correct = (gramStage === 1) ? correctStep1 : correctStep2;
+        const card = document.querySelectorAll('.chunk-card')[activeChunk];
+        
+        if(val === correct) {
+            gramAnswers[activeChunk] = val;
+            document.getElementById(`ans-${activeChunk}`).innerText = val;
+            document.getElementById(`ans-${activeChunk}`).style.color = (gramStage===1)?'#2F855A':'#3182CE';
+            card.classList.add('correct');
+            
+            let next = gramAnswers.indexOf(null);
+            if(next !== -1) {
+                activeChunk = next;
+                renderChunks();
+            } else {
+                if(gramStage === 1) {
+                    let descHtml = d[1].map(c => {
+                        let word = c[0]; let detail = c[1]; let simple = getSimplePos(detail, c[2]);
+                        if (detail === simple || detail === "대명사" || detail === "동사") return ""; 
+                        return `<div class="detail-row"><b>${word}</b>는 <b>[${detail}]</b> 형태로서 이 안에서 <b>${simple}</b> 역할을 했어요.</div>`;
+                    }).join('');
+                    if(descHtml === "") descHtml = "<div class='detail-row'>이 문장은 복잡한 구나 절 없이 기본 단어들로 깔끔하게 이루어져 있어요!</div>";
+
+                    document.getElementById('gram-choices').style.display = 'none';
+                    document.getElementById('gram-step1-desc').innerHTML = descHtml;
+                    document.getElementById('gram-step1-exp').classList.add('show');
+                } else {
+                    let patternStr = getPattern(d[1].map(c => c[2]));
+                    document.getElementById('gram-choices').style.display = 'none';
+                    document.getElementById('gram-result-container').innerHTML = `
+                        <div class="pattern-alert">
+                            <div class="pattern-title">🎉 완벽하게 분석했습니다!</div>
+                            <div class="pattern-desc">${patternStr}</div>
+                            <button class="step-btn blue" style="margin-top:20px;" onclick="nextGrammar()">다음 문장 분석하기 ➔</button>
+                        </div>
+                    `;
+                    recordGrammarProgress();
+                }
+            }
+        } else {
+            card.style.borderColor = '#E53E3E';
+            setTimeout(()=> {
+                if(card.classList.contains('active')) card.style.borderColor = '#3182CE';
+                else card.style.borderColor = '#CBD5E0';
+            }, 600);
+        }
+    }
+    
+    function startGrammarStep2() {
+        document.getElementById('gram-step1-exp').classList.remove('show');
+        gramStage = 2;
+        let badge = document.getElementById('gram-level-badge');
+        badge.innerText = "2단계: 문장 성분 맞히기";
+        badge.style.color = "#3182CE";
+        badge.style.background = "#EBF8FF";
+        
+        document.querySelectorAll('.chunk-card').forEach(c => c.classList.remove('correct'));
+        document.querySelectorAll('.chunk-ans').forEach(a => { a.innerText = "?"; a.style.color = "#A0AEC0"; });
+        document.getElementById('gram-choices').style.display = 'flex';
+        
+        gramAnswers.fill(null);
+        activeChunk = 0;
+        renderChunks();
+        renderChoices();
+    }
+
+    function nextGrammar() {
+        curGramIdx++;
+        if(curGramIdx < grammarList.length) {
+            gramStage = 1;
+            loadGrammar();
+        } else {
+            updateEvolutionUI('gram-evo', grammarList.length, grammarList.length);
+            setTimeout(() => {
+                document.getElementById('quiz-screen-gram').style.display = 'none';
+                document.getElementById('result-screen-gram').style.display = 'block';
+            }, 500);
+        }
+    }
+
+    function resetGrammarTest() {
+        document.getElementById('result-screen-gram').style.display = 'none';
+        document.getElementById('intro-screen-gram').style.display = 'block';
+    }
+
+    function recordGrammarProgress() {
+        const dateKey = getTodayKey();
+        let history = JSON.parse(localStorage.getItem('surinamu_grammar_history')) || {};
+        if (!history[dateKey]) { history[dateKey] = { count: 0 }; }
+        history[dateKey].count++;
+        localStorage.setItem('surinamu_grammar_history', JSON.stringify(history));
+    }
+
+    function saveHistory(type, data) {
+        let history = JSON.parse(localStorage.getItem(`surinamu_${type}_history`)) || [];
+        history.unshift({ date: formatDate(new Date()), ...data });
+        localStorage.setItem(`surinamu_${type}_history`, JSON.stringify(history));
+    }
+
+    // ==========================================
+    // 4. 기록(History) 렌더링 로직
+    // ==========================================
+    function renderHistory() {
+        const historyList = document.getElementById('history-list');
+        historyList.innerHTML = '';
+        
+        let wordHistory = JSON.parse(localStorage.getItem('surinamu_word_history')) || [];
+        let dictHistory = JSON.parse(localStorage.getItem('surinamu_dictation_history')) || {};
+        let gramHistory = JSON.parse(localStorage.getItem('surinamu_grammar_history')) || {};
+
+        // 1. 단어 테스트 기록
+        const wordTitle = document.createElement('div');
+        wordTitle.className = 'history-category';
+        wordTitle.innerHTML = '📝 단어 100점 테스트';
+        historyList.appendChild(wordTitle);
+        if(wordHistory.length === 0) { historyList.innerHTML += '<p style="color:#A0AEC0; font-size:14px;">응시 기록이 없습니다.</p>'; } 
+        else {
+            wordHistory.slice(0, 3).forEach(item => {
+                let stamp = item.score >= 90 ? '<div class="stamp-excellent">마스터 용! 🐉</div>' : ''; 
+                historyList.innerHTML += `
+                    <div class="history-card">
+                        <div class="history-info">
+                            <span class="history-date">${item.date}</span>
+                            <span class="history-score">${item.score}점 <span style="font-size:14px; color:#A0AEC0;">(${item.correct}/${item.total})</span></span>
+                        </div>
+                        ${stamp}
+                    </div>`;
+            });
+        }
+
+        // 2. 딕테이션 기록
+        const dictTitle = document.createElement('div');
+        dictTitle.className = 'history-category';
+        dictTitle.innerHTML = '🎧 영작(딕테이션) 달성도';
+        historyList.appendChild(dictTitle);
+        const dictDates = Object.keys(dictHistory).sort((a, b) => new Date(b) - new Date(a));
+        if(dictDates.length === 0) { historyList.innerHTML += '<p style="color:#A0AEC0; font-size:14px;">훈련 기록이 없습니다.</p>'; } 
+        else {
+            dictDates.slice(0, 3).forEach(date => {
+                const data = dictHistory[date];
+                let stamp = data.dictation >= 10 ? '<span class="stamp-excellent" style="font-size:14px;">멋진 진화! 🐉</span>' : ''; 
+                historyList.innerHTML += `
+                    <div class="history-card">
+                        <div class="history-info">
+                            <span class="history-date">${date.replace(/-/g, '. ')}</span>
+                            <span class="history-score">${data.dictation}문장 <span style="font-size:14px; color:#A0AEC0;">성공</span></span>
+                        </div>
+                        ${stamp}
+                    </div>`;
+            });
+        }
+
+        // 3. 문법 분석 기록
+        const gramTitle = document.createElement('div');
+        gramTitle.className = 'history-category';
+        gramTitle.innerHTML = '🧩 문장 분석 달성도';
+        historyList.appendChild(gramTitle);
+        const gramDates = Object.keys(gramHistory).sort((a, b) => new Date(b) - new Date(a));
+        if(gramDates.length === 0) { historyList.innerHTML += '<p style="color:#A0AEC0; font-size:14px;">분석 기록이 없습니다.</p>'; } 
+        else {
+            gramDates.slice(0, 3).forEach(date => {
+                const data = gramHistory[date];
+                let stamp = data.count >= 10 ? '<span class="stamp-excellent" style="font-size:14px;">문법 마스터! 🐉</span>' : ''; 
+                historyList.innerHTML += `
+                    <div class="history-card">
+                        <div class="history-info">
+                            <span class="history-date">${date.replace(/-/g, '. ')}</span>
+                            <span class="history-score">${data.count}문장 <span style="font-size:14px; color:#A0AEC0;">분석완료</span></span>
+                        </div>
+                        ${stamp}
+                    </div>`;
+            });
+        }
+    }
+</script>
+
+</body>
+</html>
