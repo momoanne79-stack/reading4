@@ -294,8 +294,9 @@
         { en: "I want to say I love you, a googol times!", ko: "나는 당신을 구골 번 사랑한다고 말하고 싶어!" }
     ];
 
+    // ⭐명사적 용법으로 쓰인 구/절은 '(명사적)' 이라는 태그를 추가하여 앱이 완벽하게 식별하도록 수정되었습니다.⭐
     const grammarList = [
-        ["모든 집안일 중 가장 간단한 것은 장난감을 집는 것이다.", [["The simplest of all chores", "명사구", "주어"], ["is", "동사", "서술어"], ["to pick up the toys", "to부정사구", "보어"]]],
+        ["모든 집안일 중 가장 간단한 것은 장난감을 집는 것이다.", [["The simplest of all chores", "명사구", "주어"], ["is", "동사", "서술어"], ["to pick up the toys", "to부정사구(명사적)", "보어"]]],
         ["기저귀를 쓰레기통에 버리는 것은 쉬운 집안일이다.", [["Throwing diapers in the garbage", "동명사구", "주어"], ["is", "동사", "서술어"], ["an easy chore", "명사구", "보어"]]],
         ["십대들은 더 어린 아이들보다 더 강하다.", [["Teenagers", "명사", "주어"], ["are", "동사", "서술어"], ["stronger", "형용사", "보어"], ["than younger kids", "전치사구", "수식어"]]],
         ["그들은 기꺼이 당신의 단계를 따를 것이다.", [["They", "대명사", "주어"], ["would willingly follow", "동사구", "서술어"], ["your steps", "명사구", "목적어"]]],
@@ -305,7 +306,7 @@
         ["그의 조카는 그것을 구골이라고 불렀다.", [["His nephew", "명사구", "주어"], ["called", "동사", "서술어"], ["it", "대명사", "목적어"], ["a googol", "명사구", "보어"]]],
         ["구골은 수학에서 특별한 의미가 없다.", [["The googol", "명사구", "주어"], ["has", "동사", "서술어"], ["no particular meaning", "명사구", "목적어"], ["in mathematics", "전치사구", "수식어"]]],
         ["카스너는 그 용어를 소개했다.", [["Kasner", "명사", "주어"], ["introduced", "동사", "서술어"], ["the term", "명사구", "목적어"]]],
-        ["나는 당신을 구골 번 사랑한다고 말하고 싶어!", [["I", "대명사", "주어"], ["want", "동사", "서술어"], ["to say I love you", "to부정사구", "목적어"], ["a googol times", "부사구", "수식어"]]],
+        ["나는 당신을 구골 번 사랑한다고 말하고 싶어!", [["I", "대명사", "주어"], ["want", "동사", "서술어"], ["to say I love you", "to부정사구(명사적)", "목적어"], ["a googol times", "부사구", "수식어"]]],
         ["그들은 그것을 빨리 이해할 것이다.", [["They", "대명사", "주어"], ["will quickly understand", "동사구", "서술어"], ["it", "대명사", "목적어"]]]
     ];
 
@@ -476,7 +477,7 @@
     }
 
     // ==========================================
-    // 2. 영작(딕테이션) 로직 (⭐대소문자 완벽 무시 로직 적용⭐)
+    // 2. 영작(딕테이션) 로직 (⭐대소문자 완벽 무시 로직 유지⭐)
     // ==========================================
     let currentSentenceIdx = 0;
     let isLooping = false;
@@ -601,7 +602,7 @@
     }
 
     // ==========================================
-    // 3. 문장 분석(문법) 로직
+    // 3. 문장 분석(문법) 로직 (⭐오판 버그 완벽 수정⭐)
     // ==========================================
     let curGramIdx = 0;
     let gramStage = 1; 
@@ -663,13 +664,20 @@
         });
     }
 
+    // ⭐핵심 패치⭐: 부정사나 동명사가 명사적 용법으로 쓰인 경우 강제로 형용사로 바뀌지 않도록 방어하는 로직입니다.
     function getSimplePos(detail, role) {
         if (detail.includes("대명사")) return "대명사";
         if (detail.includes("동사") && !detail.includes("동명사") && !detail.includes("부정사") && !detail.includes("분사")) return "동사";
         if (detail.includes("접속사")) return "접속사(절)";
         
+        // 데이터에 '명사'라는 키워드가 포함되어 있으면 무조건 명사로 리턴 (예: to부정사구(명사적), 명사절, 동명사구 등)
+        if (detail.includes("명사") || detail.includes("동명사")) return "명사(구/절)";
+        
+        // 보어 자리에 왔지만 형용사 역할을 하는 분사, 형용사 등
         if (role === "보어" && (detail.includes("부정사") || detail.includes("분사") || detail.includes("형용사"))) return "형용사(구/절)";
-        if ((role === "주어" || role === "목적어" || role === "보어") && (detail.includes("명사") || detail.includes("부정사") || detail.includes("동명사") || detail.includes("명사절"))) return "명사(구/절)";
+        
+        // 주어나 목적어 자리에 온 부정사는 기본적으로 명사 처리
+        if ((role === "주어" || role === "목적어") && detail.includes("부정사")) return "명사(구/절)";
         
         if (detail.includes("형용사") || detail.includes("분사")) return "형용사(구/절)";
         if (detail.includes("부사") || detail.includes("전치사")) return "부사(구/절)";
